@@ -36,6 +36,22 @@ import "C"
 
 Even though it looks like a multiline comment, it is actually evaluated! See [the `cgo` command](http://golang.org/cmd/cgo/).
 
+####Note for Rust:
+Interfacing C code in Rust is done through a Foreign Function Interface (FFI for short). This is explained in [the official Rust documentation](https://doc.rust-lang.org/book/ffi.html). 
+
+To quickly summarize the page, Rust can call C functions from an already existing C library. This means one of two things: either interface directly to libcomedi and create your own IO and Elev driver, or create a static library of the supplied C driver files and create a driver built on existing IO and/or Elev interface. 
+
+To create a static library from the existing C files, a build script can be used. See [here how this is set up](http://doc.crates.io/build-script.html). Remember that the name of the library **must** start with "lib" and end with ".a". Example "libelev.a". 
+
+This how linking and defining the C functions to be called in your Rust code:
+```rust
+// Name of library is either comedi or the name of the static library.
+// If the static library is called libelev.a, then (name = "elev").
+#[link(name = "NAME OF LIBRARY")]
+extern {
+    // All function prototypes to be used from the specified library, in Rust syntax of course.
+}
+```
    
 ###2: Testing your driver
 Write a test program to make sure that the driver works as expected.
