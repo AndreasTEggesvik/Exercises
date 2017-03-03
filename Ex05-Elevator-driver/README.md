@@ -12,29 +12,31 @@ The core C driver [is available here](https://github.com/TTK4145/Project/tree/ma
 ###1: Creating a driver
 Interface to the C code, and create a driver for the elevator in the language you are doing the project in.
 
- - You may want to avoid using the `elev` files:
+ - You may or may not want to use the `elev` files:
    - They implement an abstraction you may not agree with.
    - They also define an enum and two arrays, which are not necessarily portable.
-   - This means you will also need to convert `channels.h` to the language you are using. You do not need to convert the `PORT` definitions, however.
+   - The simulator version of `elev.c` has networking code that is POSIX-only (ie. not Windows)
+   - If you choose to not use `elev.c`, you will also need to convert `channels.h` to the language you are using. You do not need to convert the `PORT` definitions, however.
  - The functionality for Stop and Obstruction can be ignored in the project. Whether or not you want to include them (for the sake of completeness) is up to you.
  - You will need to do polling at some level. Consider if you want to include this as part of the driver.
    - If you include it, you should only notify the "owner" of the driver instance when an event happens (eg. a button is pushed, a floor is reached, etc).
    - The owner should preferably state which events it is listening to. Unused events should at the very least not leak resources.
 
 ####Note for Go:
-When you create `io.go` (or equivalent) to wrap the C functions, you need to include this at the top of your file:
+When you create `driver.go` (or equivalent) to wrap the C functions, you need to include this at the top of your file:
     
 ```go
-package driver  // where "driver" is the folder that contains io.go, io.c, io.h, channels.go, channels.h and driver.go
+package driver  // where "driver" is the folder that contains io.c, io.h, channels.h and driver.go (as well as possibly channels.go and io.go)
+
 /*
-#cgo CFLAGS: -std=c11
+#cgo CFLAGS: -std=gnu11
 #cgo LDFLAGS: -lcomedi -lm
 #include "io.h"
 */
 import "C"
 ```
 
-Even though it looks like a multiline comment, it is actually evaluated! See [the `cgo` command](http://golang.org/cmd/cgo/).
+Even though it looks like a multiline comment, it is actually evaluated! See [the `cgo` command](http://golang.org/cmd/cgo/). Also look into [build constraints](https://golang.org/pkg/go/build/) for writing OS-specific code, in case you want multiplatform code (eg. for using the simulator on Windows).
 
 ####Note for Rust:
 Interfacing C code in Rust is done through a Foreign Function Interface (FFI for short). This is explained in [the official Rust documentation](https://doc.rust-lang.org/book/ffi.html). 
